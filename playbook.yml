@@ -1,0 +1,14 @@
+---
+# file: playbook.yml
+#   Use this file to setup components required for IRIDA
+
+# To install the software, use this role via the following command:
+#
+#   % ansible-playbook playbook.yml
+#
+- hosts: localhost
+  connection: local
+  sudo: yes
+  roles:
+    - irida
+  tags: irida

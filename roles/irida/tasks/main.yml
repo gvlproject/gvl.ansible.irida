@@ -1,0 +1,87 @@
+---
+  
+  #This is the main install script for PHAC's IRIDA server on the GVL.
+  
+  #check to see if gvl-apps dir is setup and installed
+  - name: Check to see if gvl/apps dir exists and create if required
+    file: name="{{ gvl_apps_home }}" state=directory owner=ubuntu group=ubuntu
+    become: yes
+    become_user: root  
+  
+  #Do an apt-get update
+  - name: Update the apt cache
+    apt: update_cache=yes
+    become: yes
+    become_user: root
+  
+  #Install some extra system packages:
+  - name: install required extra system packages
+    apt: pkg={{ item }} state="latest"
+    become: yes
+    become_user: root
+    with_items:
+      - tomcat7
+      - tomcat7-admin
+      - libapr1
+      - libapr1-dev
+      - mariadb-server
+      - mariadb-client
+      - libtcnative-1
+      
+  #Create the IRIDA file tree
+  - name: create the irida file tree
+    file: name={{ item }} state=directory owner=tomcat7 group=tomcat7
+    become: yes
+    become_user: root
+    with_items:
+      - "{{ irida_home }}"
+      - "{{ irida_data }}"
+      - "{{ irida_sequencing }}"
+      - "{{ irida_reference }}"
+      - "{{ irida_analysis }}"
+      - "{{ irida_snapshot }}"
+  
+  #create the /etc/irida file tree    
+  - name: create the /etc/irida file tree
+    file: name={{ item }} state=directory owner=root group=root
+    become: yes
+    become_user: root
+    with_items:
+      - "{{ irida_conf }}"
+      - "{{ irida_analytics }}"
+      
+  #get the irida release
+  - name: Download IRIDA release .war file
+    get_url: url="{{ irida_war }}" dest="{{ irida_home }}/irida.war"
+    become: yes
+    become_user: "tomcat7"
+    
+  #download the irida.conf file  
+  - name: Download the IRIDA conf file
+    get_url: url="{{ irida_conf }}" dest="{{ irida_home }}/irida.conf"
+    become: yes
+    become_user: "tomcat7"
+    
+  #download the irida.conf file  
+  - name: Download the IRIDA web conf file
+    get_url: url="{{ irida_web_conf }}" dest="{{ irida_home }}/web.conf"
+    become: yes
+    become_user: "tomcat7"
+    
+  #Link the war file into the tomcat path
+  - name: Link the files into the correct places
+    file: name="{{ item.name }}" state=link src="{{ item.src }}"
+    become: yes
+    become_user: "{{ item.user }}"
+    with_items:
+      - { name: "{{ irida_conf }}/irida.conf", src: "{{ irida_home }}/irida.conf", user: "root" }
+      - { name: "{{ irida_conf }}/web.conf", src: "{{ irida_home }}/web.conf", user: "root" }
+      - { name: "{{ tomcat_webapps }}/irida.war", src: "{{ irida_home }}/irida.war", user: "tomcat7" }
+  
+  #Make some changes to the web.conf file
+  - name: Make some edits to the web.conf file.
+    lineinfile: dest="{{ irida_home }}/web.conf" regexp="{{ item.regexp }}" line="{{ item.line }}"
+    become: yes
+    become_user: tomcat7
+    with_items:
+      - { regexp: "server.base.url=.*", line: "server.base.url=http://localhost:48888/irida/" }
