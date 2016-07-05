@@ -1,0 +1,166 @@
+  #This is the main install script for PHAC's IRIDA server on the GVL.
+  
+  #check to see if gvl-apps dir is setup and installed
+  - name: Check to see if gvl/apps dir exists and create if required
+    file: name="{{ gvl_apps_home }}" state=directory owner=ubuntu group=ubuntu
+    become: yes
+    become_user: root  
+  
+  #Do an apt-get update
+  - name: Update the apt cache
+    apt: update_cache=yes
+    become: yes
+    become_user: root
+  
+  #Install some extra system packages:
+  - name: install required extra system packages
+    apt: pkg={{ item }} state="latest"
+    become: yes
+    become_user: root
+    with_items:
+      - tomcat7
+      - tomcat7-admin
+      - libapr1
+      - libapr1-dev
+      - mariadb-server
+      - mariadb-client
+      - libtcnative-1
+      
+  #Create the IRIDA file tree
+  - name: create the irida file tree
+    file: name={{ item }} state=directory owner=tomcat7 group=tomcat7
+    become: yes
+    become_user: root
+    with_items:
+      - "{{ irida_home }}"
+      - "{{ irida_data }}"
+      - "{{ irida_sequencing }}"
+      - "{{ irida_reference }}"
+      - "{{ irida_analysis }}"
+      - "{{ irida_snapshot }}"
+  
+  #create the /etc/irida file tree    
+  - name: create the /etc/irida file tree
+    file: name={{ item }} state=directory owner=root group=root
+    become: yes
+    become_user: root
+    with_items:
+      - "{{ irida_conf }}"
+      - "{{ irida_analytics }}"
+      
+  #get the irida release
+  - name: Download IRIDA release .war file
+    get_url: url="{{ irida_war_file }}" dest="{{ irida_home }}/irida.war"
+    become: yes
+    become_user: "tomcat7"
+    
+  #download the irida.conf file  
+  - name: Download the IRIDA conf file
+    get_url: url="{{ irida_conf_file }}" dest="{{ irida_home }}/irida.conf"
+    become: yes
+    become_user: "tomcat7"
+    
+  #download the irida.conf file  
+  - name: Download the IRIDA web conf file
+    get_url: url="{{ irida_web_conf_file }}" dest="{{ irida_home }}/web.conf"
+    become: yes
+    become_user: "tomcat7"
+    
+  #Link the war file into the tomcat path
+  - name: Link the files into the correct places
+    file: name="{{ item.name }}" state=link src="{{ item.src }}"
+    become: yes
+    become_user: "{{ item.user }}"
+    with_items:
+      - { name: "{{ irida_conf }}/irida.conf", src: "{{ irida_home }}/irida.conf", user: "root" }
+      - { name: "{{ irida_conf }}/web.conf", src: "{{ irida_home }}/web.conf", user: "root" }
+      - { name: "{{ tomcat_webapps }}/irida.war", src: "{{ irida_home }}/irida.war", user: "tomcat7" }
+  
+  #Make some changes to the web.conf file
+  - name: Make some edits to the web.conf file.
+    lineinfile: dest="{{ irida_home }}/web.conf" regexp="{{ item.regexp }}" line="{{ item.line }}"
+    become: yes
+    become_user: tomcat7
+    with_items:
+      - { regexp: "server.base.url=.*", line: "server.base.url=http://localhost:48888/irida/" }
+      
+  - name: Make some edits to the irida.conf file.
+    lineinfile: dest="{{ irida_home }}/irida.conf" regexp="{{ item.regexp }}" line="{{ item.line }}"
+    become: yes
+    become_user: tomcat7
+    with_items:
+      - { regexp: "sequence.file.base.directory=.*", line: "sequence.file.base.directory={{ irida_sequencing }}" }
+      - { regexp: "reference.file.base.directory=.*", line: "reference.file.base.directory={{ irida_reference }}" }
+      - { regexp: "output.file.base.directory=.*", line: "output.file.base.directory={{ irida_analysis }}" }
+      - { regexp: "snapshot.file.base.directory=.*", line: "snapshot.file.base.directory={{ irida_snapshot }}" }
+      - { regexp: "jdbc.url=.*", line: "jdbc.url=jdbc:mysql://localhost:3306/irida" }
+      - { regexp: "jdbc.username=.*", line: "jdbc.username=irida" }
+      - { regexp: "jdbc.password=.*", line: "jdbc.password=irida" }
+      
+  #restart the mysql database
+  - name: restart the mysql database
+    service: name=mysql state=restarted
+    become: yes
+    become_user: root
+  
+  #Grant privileges and create database  
+  - name: Grant privileges on irida db to irida user
+    mysql_user: name="irida" password="irida" priv="irida.*:ALL" host="localhost" state=present
+    become: yes
+    become_user: ubuntu
+    
+  - name: Create the irida database
+    mysql_db: name="irida" state=present
+    become: yes
+    become_user: ubuntu
+    
+  # Increase memory for tomcat7
+  # This is a requirement for Web Apollo, or it will crash
+  - name: "Increase memory for tomcat"
+    copy: src="setenv.sh" dest="/usr/share/tomcat7/bin" owner=tomcat7 mode=0755
+    become: yes
+    
+  #enable tomcat and mysql
+  - name: "Enable tomcat and mysql"
+    service: name="{{ item }}" enabled=yes
+    become: yes
+    become_user: root
+    with_items:
+      - tomcat7
+      - mysql
+  
+  #Copy some settings into the tomcat config file
+  - name: Copy some settings into tomcat config file
+    copy: src=tomcat7.conf dest="{{ tomcat_config }}/tomcat7.conf" owner=tomcat7 group=tomcat7
+    become: yes
+    become_user: root
+  
+  #Fix some of the issues for the config files  
+  - name: Edit tomcat7 in /etc/defaults/
+    lineinfile: dest="/etc/defaults/tomcat7" regexp="#JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
+    become: yes
+    become_user: root
+    
+  #copy the server.xml file
+  - name: Copy the server.xml file to the correct location
+    copy: src="server.xml" dest="{{ tomcat_config }}/server.xml" owner=root group=tomcat7
+    become: yes
+    become_user: root
+    
+  #start tomcat
+  - name: Start tomcat
+    service: name=tomcat7 state=restarted
+    become: yes
+    become_user: root
+    
+  # Add file to nginx folder to get tomcat and nginx to talk nicely
+  - name: "Copy nginx config file"
+    copy: src="irida.locations" dest="{{ nginx_config }}/irida.locations" mode=0600
+    become: yes
+    become_user: root
+
+  # Restart Nginx to apply changes
+  - name: "restart nginx"
+    service: name=nginx state=restarted
+    become: yes
+    become_user: root

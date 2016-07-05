@@ -1,0 +1,75 @@
+---
+  
+  #Firstly, create the bootstrap user for irida and return its outpur
+  - name: Create the bootstrap user
+    command: "cd {{ galaxy_server_dir }} && sudo su galaxy && source .venv/bin/activate && python scripts/api/manage_bootstrap_user.py -c {{ galaxy_config_file }} -u {{ tools_admin_username }} -e {{ tools_admin_email }} -p {{ tools_admin_password }}"
+    register: api_key
+    become: yes
+    become_user: ubuntu
+    
+  - debug: var=api_key
+  
+  #set the api key for irida to the one that was returned
+  - set_fact: galaxy_tools_api_key="{{ api_key.stdout_lines[0] }}" 
+  
+  
+  #Add the admin user to galaxy.ini (check to see if the admin users line already exists)
+  - name: Check/Set bootstrap user as Galaxy Admin if admin_users tag is already in the config file
+    replace: dest={{ galaxy_config_file }} regexp="^[ ]*admin_users[ ]*=[ ]*" replace="admin_users = {{ tools_admin_email }},"  #"
+    register: admin_users_found
+    become: yes
+    become_user: galaxy
+
+  - name: Set bootstrap user as Galaxy Admin
+    lineinfile: dest={{ galaxy_config_file }} state=present insertafter="app:main" line="admin_users = {{ tools_admin_email }}"  #"
+    when: admin_users_found.msg == ""
+    become: yes
+    become_user: galaxy
+    
+  #Add the irida toolshed to the toolshed conf file.
+  - name: Add the irida toolshed to the toolshed conf file.
+    lineinfile: dest="{{ galaxy_server_dir }}/config/tool_sheds_conf.xml" insert_before="^</toolsheds>" line='<tool_shed name="IRIDA Tool Shed" url="https://irida.corefacility.ca/galaxy-shed"/>'
+    become: yes
+    become_user: galaxy
+    
+  #Copy the multiple tool install_tools script over
+  - name: Copy install_tool_shed_tools.py to galaxy_app
+    copy: src="install_tool_shed_tools.py" dest="{{ galaxy_server_dir }}/install_tool_shed_tools.py" owner="galaxy" group="galaxy"
+    become: yes
+    become_user: galaxy
+    
+  #Copy the tool list to galaxy_server_dir
+  - name: Copy the tool list to galaxy_server_dir
+    copy: src="tool_list.yml" dest="{{ galaxy_server_dir }}/tool_list.yml" owner=galaxy group=galaxy
+    become: yes
+    become_user: galaxy
+    
+  #restart Galaxy
+  - name: stop Galaxy
+    shell: "{{ galaxy_server_dir }}/run.sh --pid-file=main.pid --log-file=main.log --stop-daemon"
+    become: yes
+    become_user: galaxy
+    
+  - name: Wait for Galaxy to stop
+    wait_for: port=8080 delay=5 state=stopped timeout=300
+  
+  - name: Start Galaxy
+    shell: "{{ galaxy_server_dir }}/run.sh --pid-file=main.pid --log-file=main.log --daemon"
+    become: yes
+    become_user: galaxy
+    
+  - name: Wait for Galaxy to start
+    wait_for: port=8080 delay=5 state=started timeout=600
+    
+  #Install the tools!
+  - name: Install the toolshed tools!
+    command: "cd {{ galaxy_server_dir }} && sudo su galaxy && source .venv/bin/activate && python install_tool_shed_tools.py -g {{ galaxy_tools_galaxy_instance_url }} -a {{ galaxy_tools_api_key }} -t tool_list.yaml"
+    become: yes
+    become_user: ubuntu
+    ignore_errors: true
+    
+  #Now de admin the irida user..
+  - name: De-admin the irida user
+    replace: dest="{{ galaxy_config_file }}" regexp="{{ tools_admin_email}}[,]?" replace=""
+    become: yes
+    become_user: galaxy
