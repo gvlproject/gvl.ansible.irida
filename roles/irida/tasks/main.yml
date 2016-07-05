@@ -137,6 +137,12 @@
     become: yes
     become_user: root
     
+  #start tomcat
+  - name: Start tomcat
+    service: name=tomcat7 state=restarted
+    become: yes
+    become_user: root
+    
   # Add file to nginx folder to get tomcat and nginx to talk nicely
   - name: "Copy nginx config file"
     copy: src="irida.locations" dest="{{ nginx_config }}/irida.locations" mode=0600
