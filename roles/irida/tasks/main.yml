@@ -85,3 +85,33 @@
     become_user: tomcat7
     with_items:
       - { regexp: "server.base.url=.*", line: "server.base.url=http://localhost:48888/irida/" }
+      
+  - name: Make some edits to the irida.conf file.
+    lineinfile: dest="{{ irida_home }}/irida.conf" regexp="{{ item.regexp }}" line="{{ item.line }}"
+    become: yes
+    become_user: tomcat7
+    with_items:
+      - { regexp: "sequence.file.base.directory=.*", line: "sequence.file.base.directory={{ irida_sequencing }}" }
+      - { regexp: "reference.file.base.directory=.*", line: "reference.file.base.directory={{ irida_reference }}" }
+      - { regexp: "output.file.base.directory=.*", line: "output.file.base.directory={{ irida_analysis }}" }
+      - { regexp: "snapshot.file.base.directory=.*", line: "snapshot.file.base.directory={{ irida_snapshot }}" }
+      - { regexp: "jdbc.url=.*", line: "jdbc.url=jdbc:mysql://localhost:3306/irida" }
+      - { regexp: "jdbc.username=.*", line: "jdbc.username=irida" }
+      - { regexp: "jdbc.password=.*", line: "jdbc.password=irida" }
+      
+  #restart the mysql database
+  - name: restart the mysql database
+    service: name=mysql state=restarted
+    become: yes
+    become_user: root
+  
+  #Grant privileges and create database  
+  - name: Grant privileges on irida db to irida user
+    command: echo "grant all privileges on irida.* to 'irida'@'localhost' identified by 'irida';" | mysql -u root
+    become: yes
+    become_user: ubuntu
+    
+  - name: Create the irida database
+    command: echo "create database irida;" | mysql -u root
+    become: yes
+    become_user: ubuntu
