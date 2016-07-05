@@ -20,9 +20,9 @@
   tomcat_webapps: "/var/lib/tomcat7/webapps"
   
   #IRIDA URLS:
-  irida_war: "https://github.com/phac-nml/irida/releases/download/0.11.3/irida.war"
-  irida_conf: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/irida.conf"
-  irida_web_conf: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/web.conf"
+  irida_war_file: "https://github.com/phac-nml/irida/releases/download/0.11.3/irida.war"
+  irida_conf_file: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/irida.conf"
+  irida_web_conf_file: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/web.conf"
 
   # Database info
   database_user: ""

@@ -52,19 +52,19 @@
       
   #get the irida release
   - name: Download IRIDA release .war file
-    get_url: url="{{ irida_war }}" dest="{{ irida_home }}/irida.war"
+    get_url: url="{{ irida_war_file }}" dest="{{ irida_home }}/irida.war"
     become: yes
     become_user: "tomcat7"
     
   #download the irida.conf file  
   - name: Download the IRIDA conf file
-    get_url: url="{{ irida_conf }}" dest="{{ irida_home }}/irida.conf"
+    get_url: url="{{ irida_conf_file }}" dest="{{ irida_home }}/irida.conf"
     become: yes
     become_user: "tomcat7"
     
   #download the irida.conf file  
   - name: Download the IRIDA web conf file
-    get_url: url="{{ irida_web_conf }}" dest="{{ irida_home }}/web.conf"
+    get_url: url="{{ irida_web_conf_file }}" dest="{{ irida_home }}/web.conf"
     become: yes
     become_user: "tomcat7"
     
@@ -115,3 +115,24 @@
     command: echo "create database irida;" | mysql -u root
     become: yes
     become_user: ubuntu
+    
+  # Increase memory for tomcat7
+  # This is a requirement for Web Apollo, or it will crash
+  - name: "Increase memory for tomcat"
+    copy: src="setenv.sh" dest="/usr/share/tomcat7/bin" owner=tomcat7 mode=0755
+    become: yes
+    
+  #enable tomcat and mysql
+  - name: "Enable tomcat and mysql"
+    service: name="{{ item }}" enabled=yes
+    become: yes
+    become_user: root
+    with_items:
+      - tomcat7
+      - mysql
+  
+  #Copy some settings into the tomcat config file
+  - name: Copy some settings into tomcat config file
+    copy: src=tomcat7.conf dest="{{ tomcat_config }}/tomcat7.conf" owner=tomcat7 group=tomcat7
+    become: yes
+    become_user: root
