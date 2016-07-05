@@ -107,12 +107,12 @@
   
   #Grant privileges and create database  
   - name: Grant privileges on irida db to irida user
-    command: echo "grant all privileges on irida.* to 'irida'@'localhost' identified by 'irida';" | mysql -u root
+    mysql_user: name="irida" password="irida" priv="irida.*:ALL" host="localhost" state=present
     become: yes
     become_user: ubuntu
     
   - name: Create the irida database
-    command: echo "create database irida;" | mysql -u root
+    mysql_db: name="irida" state=present
     become: yes
     become_user: ubuntu
     
@@ -136,6 +136,18 @@
     copy: src=tomcat7.conf dest="{{ tomcat_config }}/tomcat7.conf" owner=tomcat7 group=tomcat7
     become: yes
     become_user: root
+  
+  #Fix some of the issues for the config files  
+  - name: Edit tomcat7 in /etc/defaults/
+    lineinfile: dest="/etc/defaults/tomcat7" regexp="#JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
+    become: yes
+    become_user: root
+    
+  #copy the server.xml file
+  - name: Copy the server.xml file to the correct location
+    copy: src="server.xml" dest="{{ tomcat_config }}/server.xml" owner=root group=tomcat7
+    become: yes
+    become_user: root
     
   #start tomcat
   - name: Start tomcat
@@ -154,3 +166,5 @@
     service: name=nginx state=restarted
     become: yes
     become_user: root
+    
+
