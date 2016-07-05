@@ -136,3 +136,15 @@
     copy: src=tomcat7.conf dest="{{ tomcat_config }}/tomcat7.conf" owner=tomcat7 group=tomcat7
     become: yes
     become_user: root
+    
+  # Add file to nginx folder to get tomcat and nginx to talk nicely
+  - name: "Copy nginx config file"
+    copy: src="irida.locations" dest="{{ nginx_config }}/irida.locations" mode=0600
+    become: yes
+    become_user: root
+
+  # Restart Nginx to apply changes
+  - name: "restart nginx"
+    service: name=nginx state=restarted
+    become: yes
+    become_user: root
