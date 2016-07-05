@@ -21,8 +21,8 @@
   
   #IRIDA URLS:
   irida_war: "https://github.com/phac-nml/irida/releases/download/0.11.3/irida.war"
-  irida_conf: "https://raw.github.com/phac-nml/irida/tree/development/doc/administrator/web/config/irida.conf"
-  irida_web_conf: "https://raw.github.com/phac-nml/irida/tree/development/doc/administrator/web/config/web.conf"
+  irida_conf: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/irida.conf"
+  irida_web_conf: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/web.conf"
 
   # Database info
   database_user: ""
