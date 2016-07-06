@@ -2,7 +2,7 @@
   
   #Firstly, create the bootstrap user for irida and return its outpur
   - name: Create the bootstrap user
-    command: chdir="{{ galaxy_server_dir }}" "source .venv/bin/activate && python scripts/api/manage_bootstrap_user.py -c {{ galaxy_config_file }} -u {{ tools_admin_username }} -e {{ tools_admin_email }} -p {{ tools_admin_password }}"
+    command: chdir="{{ galaxy_server_dir }}" .venv/bin/python scripts/api/manage_bootstrap_user.py -c "{{ galaxy_config_file }}" -u "{{ tools_admin_username }}" -e "{{ tools_admin_email }}" -p "{{ tools_admin_password }}"
     register: api_key
     become: yes
     become_user: galaxy
