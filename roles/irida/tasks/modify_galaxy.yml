@@ -28,7 +28,7 @@
     
   #Add the irida toolshed to the toolshed conf file.
   - name: Add the irida toolshed to the toolshed conf file.
-    lineinfile: dest="{{ galaxy_server_dir }}/config/tool_sheds_conf.xml" insertbefore="^</toolsheds>" line='<tool_shed name="IRIDA Tool Shed" url="https://irida.corefacility.ca/galaxy-shed"/>' state=present
+    lineinfile: dest="{{ galaxy_server_dir }}/config/tool_sheds_conf.xml" insertbefore="</tool_sheds>" line='<tool_shed name="IRIDA Tool Shed" url="https://irida.corefacility.ca/galaxy-shed"/>' state=present
     become: yes
     become_user: galaxy
     
