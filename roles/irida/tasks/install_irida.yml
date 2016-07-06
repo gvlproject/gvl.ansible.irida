@@ -134,6 +134,12 @@
     copy: src=tomcat7.conf dest="{{ tomcat_config }}/tomcat7.conf" owner=tomcat7 group=tomcat7
     become: yes
     become_user: root
+    
+  #start tomcat
+  - name: Start tomcat
+    service: name=tomcat7 state=restarted
+    become: yes
+    become_user: root
   
   #Fix some of the issues for the config files  
   - name: Edit tomcat7 in /etc/defaults/
