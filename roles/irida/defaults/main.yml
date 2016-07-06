@@ -21,7 +21,8 @@
   
   #IRIDA URLS:
   ##irida_war_file: "https://github.com/phac-nml/irida/releases/download/0.11.3/irida.war"
-  irida_war_file: "http://irida.corefacility.ca/downloads/webapp/irida-fixgalaxyapi.war"
+  #irida_war_file: "http://irida.corefacility.ca/downloads/webapp/irida-fixgalaxyapi.war"
+  irida_war_file: "http://irida.corefacility.ca/downloads/webapp/irida-fix-gvl.war"
   irida_conf_file: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/irida.conf"
   irida_web_conf_file: "https://raw.githubusercontent.com/phac-nml/irida/development/doc/administrator/web/config/web.conf"
 
