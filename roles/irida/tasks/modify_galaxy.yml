@@ -28,7 +28,7 @@
     
   #Add the irida toolshed to the toolshed conf file.
   - name: Add the irida toolshed to the toolshed conf file.
-    lineinfile: dest="{{ galaxy_server_dir }}/config/tool_sheds_conf.xml" insertbefore="^</toolsheds>" line='<tool_shed name="IRIDA Tool Shed" url="https://irida.corefacility.ca/galaxy-shed"/>'
+    lineinfile: dest="{{ galaxy_server_dir }}/config/tool_sheds_conf.xml" insertbefore="^</toolsheds>" line='<tool_shed name="IRIDA Tool Shed" url="https://irida.corefacility.ca/galaxy-shed"/>' state=present
     become: yes
     become_user: galaxy
     
@@ -46,7 +46,7 @@
   
   #insert the snvphyl tool section
   - name: Insert the snvphyl tool collection menu into the integrated_tool_panel.xml
-    lineinfile: dest="/mnt/galaxy/var/integrated_tool_panel.xml" insertbefore="^</toolbox>" line="{{ item }}"
+    lineinfile: dest="/mnt/galaxy/var/integrated_tool_panel.xml" insertbefore="^</toolbox>" line="{{ item }}" state=present
     with_items:
       - "<section id='snvphyl' name='snvPhyl'>"
       - "</section>"
@@ -72,7 +72,7 @@
     
   #Install the tools!
   - name: Install the toolshed tools!
-    command: chdir="{{ galaxy_server_dir }}" .venv/bin/python install_tool_shed_tools.py -g "{{ galaxy_tools_galaxy_instance_url }}" -a "{{ galaxy_tools_api_key }}" -t tool_list.yaml
+    command: chdir="{{ galaxy_server_dir }}" .venv/bin/python install_tool_shed_tools.py -g "{{ galaxy_tools_galaxy_instance_url }}" -a "{{ galaxy_tools_api_key }}" -t tool_list.yml
     become: yes
     become_user: galaxy
     ignore_errors: true
