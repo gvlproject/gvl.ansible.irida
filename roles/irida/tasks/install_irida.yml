@@ -96,6 +96,7 @@
       - { regexp: "jdbc.url=.*", line: "jdbc.url=jdbc:mysql://localhost:3306/irida" }
       - { regexp: "jdbc.username=.*", line: "jdbc.username=irida" }
       - { regexp: "jdbc.password=.*", line: "jdbc.password=irida" }
+      - { regexp: "galaxy.library.upload.timeout=", line: "galaxy.library.upload.timeout=3600"}
       
   #restart the mysql database
   - name: restart the mysql database
@@ -143,7 +144,7 @@
   
   #Fix some of the issues for the config files  
   - name: Edit tomcat7 in /etc/default/
-    lineinfile: dest="/etc/default/tomcat7" regexp="#JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
+    lineinfile: dest="/etc/default/tomcat7" regexp="JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
     become: yes
     become_user: root
     

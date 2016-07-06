@@ -78,10 +78,10 @@
     ignore_errors: true
     
   #Now de admin the irida user..
-  - name: De-admin the irida user
-    replace: dest="{{ galaxy_config_file }}" regexp="{{ tools_admin_email}}[,]?" replace=""
-    become: yes
-    become_user: galaxy
+  #- name: De-admin the irida user
+  #  replace: dest="{{ galaxy_config_file }}" regexp="{{ tools_admin_email}}[,]?" replace=""
+  #  become: yes
+  #  become_user: galaxy
     
   - name: Edit the Irida config file with the galaxy users details.
     lineinfile: dest="{{ irida_conf }}/irida.conf" regexp="{{ item.reg }}" line="{{ item.line }}"
@@ -97,3 +97,20 @@
     service: name=tomcat7 state=restarted
     become: yes
     become_user: root
+    
+  #restart Galaxy
+  - name: stop Galaxy
+    shell: "{{ galaxy_server_dir }}/run.sh --pid-file=main.pid --log-file=main.log --stop-daemon"
+    become: yes
+    become_user: galaxy
+    
+  - name: Wait for Galaxy to stop
+    wait_for: port=8080 delay=5 state=stopped timeout=300
+  
+  - name: Start Galaxy
+    shell: "{{ galaxy_server_dir }}/run.sh --pid-file=main.pid --log-file=main.log --daemon"
+    become: yes
+    become_user: galaxy
+    
+  - name: Wait for Galaxy to start
+    wait_for: port=8080 delay=5 state=started timeout=600
