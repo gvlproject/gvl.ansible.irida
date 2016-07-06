@@ -84,7 +84,7 @@
     become_user: galaxy
     
   - name: Edit the Irida config file with the galaxy users details.
-    lineinfile: dest="{{ irida_conf }}/irida.conf" regexp="{{ item.reg }}" line: "{{ item.line }}"
+    lineinfile: dest="{{ irida_conf }}/irida.conf" regexp="{{ item.reg }}" line="{{ item.line }}"
     become: yes
     become_user: root
     with_items:
