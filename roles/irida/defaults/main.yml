@@ -51,7 +51,7 @@
   # A user for the Galaxy bootstrap user
   tools_admin_email: irida@local.localhost
   tools_admin_username: irida
-  tools_admin_password: irida
+  tools_admin_password: irida01
   
   galaxy_server_dir: /mnt/galaxy/galaxy-app
 
