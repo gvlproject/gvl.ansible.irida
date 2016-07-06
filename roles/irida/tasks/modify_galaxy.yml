@@ -83,11 +83,11 @@
     become: yes
     become_user: galaxy
     
-  - name: Edit the Irida config file with the galaxy user's details.
-    lineinfile: dest="{{ irida_conf }}/irida.conf" regexp="{{ item.regexp }}" line: "{{ item.line }}"
+  - name: Edit the Irida config file with the galaxy users details.
+    lineinfile: dest="{{ irida_conf }}/irida.conf" regexp="{{ item.reg }}" line: "{{ item.line }}"
     become: yes
     become_user: root
     with_items:
-      - { regexp: "galaxy.execution.url=", line: "galaxy.execution.url={{ galaxy_tools_galaxy_instance_url }}" }
-      - { regexp: "galaxy.execution.apiKey=", line: "galaxy.execution.apiKey={{ galaxy_tools_api_key }}" }
-      - { regexp: "galaxy.execution.email=", line: "galaxy.execution.email={{ tools_admin_email }}" }
+      - { reg: "galaxy.execution.url=", line: "galaxy.execution.url={{ galaxy_tools_galaxy_instance_url }}" }
+      - { reg: "galaxy.execution.apiKey=", line: "galaxy.execution.apiKey={{ galaxy_tools_api_key }}" }
+      - { reg: "galaxy.execution.email=", line: "galaxy.execution.email={{ tools_admin_email }}" }
