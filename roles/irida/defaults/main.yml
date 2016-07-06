@@ -34,7 +34,7 @@
 
   #tool installation variables
 
-  galaxy_tools_galaxy_instance_url: http://127.0.0.1:8080
+  galaxy_tools_galaxy_instance_url: "http://localhost/galaxy/"
 
   # A list of yml files that list the tools to be installed. See `files/tool_list.yaml.sample`
   galaxy_tools_tool_list_files: [ "tool_list.yaml" ]
