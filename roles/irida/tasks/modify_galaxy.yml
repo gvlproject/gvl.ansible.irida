@@ -72,9 +72,9 @@
     
   #Install the tools!
   - name: Install the toolshed tools!
-    command: "cd {{ galaxy_server_dir }} && sudo su galaxy && source .venv/bin/activate && python install_tool_shed_tools.py -g {{ galaxy_tools_galaxy_instance_url }} -a {{ galaxy_tools_api_key }} -t tool_list.yaml"
+    command: chdir="{{ galaxy_server_dir }}" .venv/bin/python install_tool_shed_tools.py -g "{{ galaxy_tools_galaxy_instance_url }}" -a "{{ galaxy_tools_api_key }}" -t tool_list.yaml
     become: yes
-    become_user: ubuntu
+    become_user: galaxy
     ignore_errors: true
     
   #Now de admin the irida user..
@@ -91,3 +91,9 @@
       - { reg: "galaxy.execution.url=", line: "galaxy.execution.url={{ galaxy_tools_galaxy_instance_url }}" }
       - { reg: "galaxy.execution.apiKey=", line: "galaxy.execution.apiKey={{ galaxy_tools_api_key }}" }
       - { reg: "galaxy.execution.email=", line: "galaxy.execution.email={{ tools_admin_email }}" }
+      
+  # Finally! - Restart tomcat!
+  - name: restart tomcat!
+    service: name=tomcat7 state=restarted
+    become: yes
+    become_user: root
