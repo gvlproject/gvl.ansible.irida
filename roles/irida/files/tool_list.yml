@@ -1,0 +1,55 @@
+api_key: <Galaxy Admin user API key>
+galaxy_instance: <IP address for target Galaxy instance>
+tools:
+
+######################################################################
+## PACKAGES - Assembly and Annotation specific packages
+######################################################################
+
+  - name: flash
+    owner: irida
+    tool_shed_url: https://irida.corefacility.ca/galaxy-shed
+    revision: 4287dd541327
+    tool_panel_section_id: ngs_qc
+    
+  - name: filter_spades_repeats
+    owner: irida
+    tool_shed_url: https://irida.corefacility.ca/galaxy-shed
+    revision: f9fc830fa47c
+    tool_panel_section_id: ngs_assembly
+    
+  - name: assemblystats
+    owner: irida
+    tool_shed_url: https://irida.corefacility.ca/galaxy-shed
+    revision: 51b76a5d78a5
+    tool_panel_section_id: ngs_assembly
+    
+  - name: spades
+    owner: lionelguy
+    tool_shed_url: http://toolshed.g2.bx.psu.edu/
+    revision: 21734680d921
+    tool_panel_section_id: ngs_assembly
+    
+  - name: prokka
+    owner: crs4
+    tool_shed_url: http://toolshed.g2.bx.psu.edu/
+    revision: f5e44aad6498
+    tool_panel_section_id: ngs_annotation
+    
+  - name: regex_find_replace
+    owner: jjohnson
+    tool_shed_url: http://toolshed.g2.bx.psu.edu/
+    revision: 9ea374bb0350
+    tool_panel_section_id: textutil
+    
+  - name: bundle_collections
+    owner: irida
+    tool_shed_url: https://irida.corefacility.ca/galaxy-shed
+    revision: 7bc329e1ada4
+    tool_panel_section_id: group
+    
+  - name: suite_snvphyl_0_3_0
+    owner: nml
+    tool_shed_url: https://irida.corefacility.ca/galaxy-shed
+    revision: bb2e651149da
+    tool_panel_section_id: snvphyl

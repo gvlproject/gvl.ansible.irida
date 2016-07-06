@@ -43,6 +43,15 @@
     copy: src="tool_list.yml" dest="{{ galaxy_server_dir }}/tool_list.yml" owner=galaxy group=galaxy
     become: yes
     become_user: galaxy
+  
+  #insert the snvphyl tool section
+  - name: Insert the snvphyl tool collection menu into the integrated_tool_panel.xml
+    lineinfile: dest="/mnt/galaxy/var/integrated_tool_panel.xml" insertbefore="^</toolbox>" line="{{ item }}"
+    with_items:
+      - "<section id='snvphyl' name='snvPhyl'>"
+      - "</section>"
+    become: yes
+    become_user: galaxy
     
   #restart Galaxy
   - name: stop Galaxy
@@ -73,3 +82,12 @@
     replace: dest="{{ galaxy_config_file }}" regexp="{{ tools_admin_email}}[,]?" replace=""
     become: yes
     become_user: galaxy
+    
+  - name: Edit the Irida config file with the galaxy user's details.
+    lineinfile: dest="{{ irida_conf }}/irida.conf" regexp="{{ item.regexp }}" line: "{{ item.line }}"
+    become: yes
+    become_user: root
+    with_items:
+      - { regexp: "galaxy.execution.url=", line: "galaxy.execution.url={{ galaxy_tools_galaxy_instance_url }}" }
+      - { regexp: "galaxy.execution.apiKey=", line: "galaxy.execution.apiKey={{ galaxy_tools_api_key }}" }
+      - { regexp: "galaxy.execution.email=", line: "galaxy.execution.email={{ tools_admin_email }}" }
