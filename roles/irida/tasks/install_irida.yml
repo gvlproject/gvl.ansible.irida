@@ -142,8 +142,8 @@
     become_user: root
   
   #Fix some of the issues for the config files  
-  - name: Edit tomcat7 in /etc/defaults/
-    lineinfile: dest="/etc/defaults/tomcat7" regexp="#JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
+  - name: Edit tomcat7 in /etc/default/
+    lineinfile: dest="/etc/default/tomcat7" regexp="#JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
     become: yes
     become_user: root
     
