@@ -165,6 +165,12 @@
     copy: src="irida.locations" dest="{{ nginx_config }}/irida.locations" mode=0600
     become: yes
     become_user: root
+    
+  #Copy the info file to the info directory
+  - name: "Copy the info file"
+    copy: src="irida.yml" dest="/opt/gvl/info/irida.yml"
+    become: yes
+    become_user: root
 
   # Restart Nginx to apply changes
   - name: "restart nginx"
