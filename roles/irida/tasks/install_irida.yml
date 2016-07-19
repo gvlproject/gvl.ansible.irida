@@ -144,9 +144,12 @@
   
   #Fix some of the issues for the config files  
   - name: Edit tomcat7 in /etc/default/
-    lineinfile: dest="/etc/default/tomcat7" regexp="JAVA_HOME.*" line="JAVA_HOME=/usr/lib/jvm/java-8-oracle"
+    lineinfile: dest={{ item.regexp }} regexp={{ item.line }}
     become: yes
     become_user: root
+    with_items:
+      - { regexp: "JAVA_OPTS='-Djava.awt.headless=true -Xmx128m -XX:+UseConcMarkSweepGC'" line: "JAVA_OPTS='-Djava.awt.headless=true -Xmx128m -XX:+UseConcMarkSweepGC -Dspring.profiles.active=prod'" }
+      - { regexp: "JAVA_HOME.*" line: "JAVA_HOME=/usr/lib/jvm/java-8-oracle" }
     
   #copy the server.xml file
   - name: Copy the server.xml file to the correct location
