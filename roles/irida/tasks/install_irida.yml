@@ -144,7 +144,7 @@
   
   #Fix some of the issues for the config files  
   - name: Edit tomcat7 in /etc/default/
-    lineinfile: dest={{ item.regexp }} regexp={{ item.line }}
+    lineinfile: dest=/etc/default/tomcat7 regexp="{{ item.regexp }}" line="{{ item.line }}" state=present
     become: yes
     become_user: root
     with_items:
